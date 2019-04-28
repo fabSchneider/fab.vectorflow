@@ -1,3 +1,4 @@
+/* draws an arrow to the screen */
 function arrow(anchor, dir, size) {
   start = p5.Vector.add(anchor, p5.Vector.mult(dir, -size));
   end = p5.Vector.add(anchor, p5.Vector.mult(dir, size));

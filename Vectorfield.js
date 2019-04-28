@@ -1,8 +1,7 @@
 function createVectorField(_width, _height) {
-  let vf = createImage(_width, _height, RGB);
+  let vf = createImage(_width, _height);
   vf.loadPixels();
-  let d = pixelDensity();
-  let count = 4 * vf.width * d * vf.height * d;
+  let count = 4 * vf.width * vf.height;
   for (let i = 0; i < count; i += 4) {
     vf.pixels[i] = 127;
     vf.pixels[i + 1] = 127;
@@ -13,10 +12,10 @@ function createVectorField(_width, _height) {
   return vf;
 }
 
-function colorToVector(c) {
-  let x = map(red(c), 0, 255, -1.0, 1.0);
-  let y = map(green(c), 0, 255, -1.0, 1.0);
-  let z = map(blue(c), 0, 255, -1.0, 1.0);
+function colorToVector(r, g, b) {
+  let x = map(r, 0, 255, -1.0, 1.0);
+  let y = map(g, 0, 255, -1.0, 1.0);
+  let z = map(b, 0, 255, -1.0, 1.0);
   return createVector(x, y, z);
 }
 
@@ -24,8 +23,7 @@ function vectorToColor(v) {
   let r = round(map(v.x, -1.0, 1.0, 0, 255));
   let g = round(map(v.y, -1.0, 1.0, 0, 255));
   let b = round(map(v.z, -1.0, 1.0, 0, 255));
-  let c = color(r, g, b);
-  return c;
+  return [r, g, b];
 }
 
 function getVectorAnchor(vf, vIndex, extX, extY) {
@@ -34,23 +32,6 @@ function getVectorAnchor(vf, vIndex, extX, extY) {
   let x = vIndex % vf.width;
   let y = floor(vIndex / vf.width);
   return createVector(x * scaleX + scaleX / 2, y * scaleY + scaleY / 2);
-}
-
-function displayVectorField(vf, extX, extY) {
-  let scaleX = float(extX) / vf.width;
-  let scaleY = float(extY) / vf.height;
-  vf.loadPixels();
-  let d = pixelDensity();
-  let count = 4 * vf.width * d * vf.height * d;
-  for (let i = 0; i < count; i += 4) {
-    let x = (i / 4) % vf.width;
-    let y = floor((i / 4) / vf.width);
-    anchor = getVectorAnchor(vf, i / 4, extX, extY);
-    let c = color(vf.pixels[i], vf.pixels[i + 1], vf.pixels[i + 2]);
-    dir = colorToVector(c);
-    //line(anchor.x, anchor.y,  anchor.x + dir.x * 50, anchor.y + dir.y * 50);  
-    arrow(anchor, dir, min(scaleX, scaleY) / 3);
-  }
 }
 
 let brushType = {
@@ -63,10 +44,23 @@ let brushType = {
   ERASE: 'erase'
 }
 
-function paintVectorField(vf, type, brushSize, intensity, hardness) {
+function displayVectorField(vf, extX, extY) {
+  let scaleX = float(extX) / vf.width;
+  let scaleY = float(extY) / vf.height;
   vf.loadPixels();
   let d = pixelDensity();
-  let count = 4 * vf.width * d * vf.height * d;
+  let count = 4 * vf.width * vf.height;
+  for (let i = 0; i < count; i += 4) {
+    anchor = getVectorAnchor(vf, i / 4, extX, extY);
+    dir = colorToVector(vf.pixels[i], vf.pixels[i + 1], vf.pixels[i + 2]);
+    arrow(anchor, dir, min(scaleX, scaleY) / 3);
+  }
+}
+
+
+function paintVectorField(vf, type, brushSize, intensity, hardness) {
+  vf.loadPixels();
+  let count = 4 * vf.width * vf.height;
   for (let i = 0; i < count; i += 4) {
 
     let anchor = getVectorAnchor(vf, i / 4, width, height);
@@ -76,8 +70,7 @@ function paintVectorField(vf, type, brushSize, intensity, hardness) {
     if (amt == 0)
       continue;
     amt *= intensity;
-    let c = color(vf.pixels[i], vf.pixels[i + 1], vf.pixels[i + 2], vf.pixels[i]);
-    let oldV = colorToVector(c);
+    let oldV = colorToVector(vf.pixels[i], vf.pixels[i + 1], vf.pixels[i + 2]);
     let newV = oldV.copy();
     let v;
     let perp;
@@ -110,10 +103,10 @@ function paintVectorField(vf, type, brushSize, intensity, hardness) {
         newV = p5.Vector.lerp(oldV, createVector(0, 0, 0), amt);
         break;
     }
-    newC = vectorToColor(newV);
-    vf.pixels[i] = red(newC);
-    vf.pixels[i + 1] = green(newC);
-    vf.pixels[i + 2] = blue(newC);
+    let newC = vectorToColor(newV);
+    vf.pixels[i] = newC[0];
+    vf.pixels[i + 1] = newC[1];
+    vf.pixels[i + 2] = newC[2];
   }
   vf.updatePixels();
 }

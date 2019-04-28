@@ -1,7 +1,7 @@
 let vf;
 
-let currBrushType = brushType.SWIRL_LEFT;
-let brushSize = 200;
+let currBrushType = brushType.PULL;
+let brushSize = 50;
 let brushIntensity = 1;
 let brushHardness = 0;
 
@@ -27,7 +27,7 @@ function setup() {
 	mouseAcc = 0;
 	mouseRot = 0;
 
-	vf = createVectorField(16, 32);
+	vf = createVectorField(round(windowWidth / 32), round(windowHeight / 32));
 }
 
 
@@ -36,6 +36,7 @@ function draw() {
 	pmouseVector = createVector(pmouseX, pmouseY);
 	mouseVector = createVector(mouseX, mouseY);
 	mouseDir = p5.Vector.sub(mouseVector, pmouseVector);
+	mouseAcc = 20;
 	mouseAcc = map(mouseDir.mag(), 3, 35, 0, 1);
 	mouseAcc = constrain(mouseAcc, 0, 1);
 	mouseDir.normalize();
@@ -51,7 +52,7 @@ function draw() {
 		noCursor();
 		push();
 		noFill();
-		circle(mouseX, mouseY, brushSize);
+		ellipse(mouseX, mouseY, brushSize, brushSize);
 		let dirColor = vectorToColor(smoothMouseDir);
 		stroke(dirColor);
 		fill(dirColor);
@@ -75,4 +76,11 @@ function mouseReleased() {
 function touchMoved() {
 	mouseDrag = true;
 	return false;
+}
+
+function touchStarted() {
+	if (touches.length == 2) {
+		vf = createVectorField(vf.width, vf.height);
+		console.log("doubleclick");
+	}
 }
