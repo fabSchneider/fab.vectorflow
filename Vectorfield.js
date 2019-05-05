@@ -1,36 +1,16 @@
 function createVectorField(_width, _height) {
-  let vf = createImage(_width, _height);
-  vf.loadPixels();
-  let count = 4 * vf.width * vf.height;
-  for (let i = 0; i < count; i += 4) {
-    vf.pixels[i] = 127;
-    vf.pixels[i + 1] = 127;
-    vf.pixels[i + 2] = 127;
-    vf.pixels[i + 3] = 255;
+  let vf = [];
+  for (let i = 0; i < _width * _height; i++) {
+    vf.push(createVector(0, 0));
   }
-  vf.updatePixels();
   return vf;
 }
 
-function colorToVector(r, g, b) {
-  let x = map(r, 0, 255, -1.0, 1.0);
-  let y = map(g, 0, 255, -1.0, 1.0);
-  let z = map(b, 0, 255, -1.0, 1.0);
-  return createVector(x, y, z);
-}
-
-function vectorToColor(v) {
-  let r = round(map(v.x, -1.0, 1.0, 0, 255));
-  let g = round(map(v.y, -1.0, 1.0, 0, 255));
-  let b = round(map(v.z, -1.0, 1.0, 0, 255));
-  return [r, g, b];
-}
-
-function getVectorAnchor(vf, vIndex, extX, extY) {
-  let scaleX = float(extX) / vf.width;
-  let scaleY = float(extY) / vf.height;
-  let x = vIndex % vf.width;
-  let y = floor(vIndex / vf.width);
+function getVectorAnchor(vfWidth, vfHeight, vIndex, extX, extY) {
+  let scaleX = float(extX) / vfWidth;
+  let scaleY = float(extY) / vfHeight;
+  let x = vIndex % vfWidth;
+  let y = floor(vIndex / vfWidth);
   return createVector(x * scaleX + scaleX / 2, y * scaleY + scaleY / 2);
 }
 
@@ -44,15 +24,13 @@ let brushType = {
   ERASE: 'erase'
 }
 
-function displayVectorField(vf, extX, extY) {
-  let scaleX = extX / vf.width;
-  let scaleY = extY / vf.height;
+function displayVectorField(vf, vfWidth, vfHeight, extX, extY) {
+  let scaleX = extX / vfWidth;
+  let scaleY = extY / vfHeight;
   let scale = min(scaleX, scaleY) / 3;
-  vf.loadPixels();
-  let count = 4 * vf.width * vf.height;
-  for (let i = 0; i < count; i += 4) {
-    anchor = getVectorAnchor(vf, i / 4, extX, extY);
-    dir = colorToVector(vf.pixels[i], vf.pixels[i + 1], vf.pixels[i + 2]);
+  for (let i = 0; i < vfWidth * vfHeight; i++) {
+    let anchor = getVectorAnchor(vfWidth, vfHeight, i, extX, extY);
+    let dir = vf[i];
     if (dir.magSq() > 0.001) {
       arrow(anchor, dir, scale);
     } else {
@@ -62,19 +40,16 @@ function displayVectorField(vf, extX, extY) {
 }
 
 
-function paintVectorField(vf, type, brushSize, intensity, hardness) {
-  vf.loadPixels();
-  let count = 4 * vf.width * vf.height;
-  for (let i = 0; i < count; i += 4) {
-
-    let anchor = getVectorAnchor(vf, i / 4, width, height);
+function paintVectorField(vf, vfWidth, vfHeight, type, brushSize, intensity, hardness) {
+  for (let i = 0; i < vfWidth * vfHeight; i++) {
+    let anchor = getVectorAnchor(vfWidth, vfHeight, i, width, height);
     let dist = p5.Vector.sub(anchor, mouseVector).magSq();
     let amt = map(dist, 0, brushSize * brushSize, 1, 0);
     amt = constrain(amt, 0, 1);
     if (amt == 0)
       continue;
     amt *= intensity;
-    let oldV = colorToVector(vf.pixels[i], vf.pixels[i + 1], vf.pixels[i + 2]);
+    let oldV = vf[i]
     let newV = oldV.copy();
     let v;
     let perp;
@@ -107,10 +82,34 @@ function paintVectorField(vf, type, brushSize, intensity, hardness) {
         newV = p5.Vector.lerp(oldV, createVector(0, 0, 0), amt);
         break;
     }
-    let newC = vectorToColor(newV);
-    vf.pixels[i] = newC[0];
-    vf.pixels[i + 1] = newC[1];
-    vf.pixels[i + 2] = newC[2];
+    vf[i] = newV;
+  }
+}
+
+function createVectorFieldImage(_width, _height) {
+  let vf = createImage(_width, _height);
+  vf.loadPixels();
+  let count = 4 * vf.width * vf.height;
+  for (let i = 0; i < count; i += 4) {
+    vf.pixels[i] = 127;
+    vf.pixels[i + 1] = 127;
+    vf.pixels[i + 2] = 127;
+    vf.pixels[i + 3] = 255;
   }
   vf.updatePixels();
+  return vf;
+}
+
+function colorToVector(r, g, b) {
+  let x = map(r, 0, 255, -1.0, 1.0);
+  let y = map(g, 0, 255, -1.0, 1.0);
+  let z = map(b, 0, 255, -1.0, 1.0);
+  return createVector(x, y, z);
+}
+
+function vectorToColor(v) {
+  let r = round(map(v.x, -1.0, 1.0, 0, 255));
+  let g = round(map(v.y, -1.0, 1.0, 0, 255));
+  let b = round(map(v.z, -1.0, 1.0, 0, 255));
+  return [r, g, b];
 }

@@ -1,4 +1,6 @@
 let vf;
+let vfWidth;
+let vfHeight;
 
 let maxSize = 1000;
 
@@ -48,7 +50,10 @@ function setup() {
 	mouseAcc = 0;
 	mouseRot = 0;
 
-	vf = createVectorField(round(width / 32), round(height / 32));
+	vfWidth = round(width / 32);
+	vfHeight = round(height / 32);
+	vf = createVectorField(vfWidth, vfHeight);
+
 	particleGraphics = createGraphics(width, height);
 	particleGraphics.pixelDensity(1);
 	particleGraphics.strokeWeight(0.1);
@@ -76,15 +81,14 @@ function draw() {
 			particleGraphics.noStroke();
 			particleGraphics.strokeWeight(particleSize);
 			particleGraphics.rect(0, 0, width, height);
-			updateParticles();
+			updateParticles(vf, vfWidth, vfHeight);
 		}
 
 		image(particleGraphics, 0, 0, width, height);
 	}
 
 	if (showVectorField)
-		displayVectorField(vf, width, height);
-
+		displayVectorField(vf, vfWidth, vfHeight, width, height);
 
 	//drawCursor
 	line(mouseX, mouseY - 10, mouseX, mouseY + 10);
@@ -101,7 +105,7 @@ function draw() {
 		fill(dirColor);
 		arrow(mouseVector, smoothMouseDir, 100 * mouseAcc);
 		pop();
-		paintVectorField(vf, currBrushType, brushSize, brushIntensity, brushHardness);
+		paintVectorField(vf, vfWidth, vfHeight, currBrushType, brushSize, brushIntensity, brushHardness);
 	}
 }
 
@@ -162,9 +166,8 @@ function randomParticles(amount) {
 	}
 }
 
-function updateParticles() {
+function updateParticles(vf, vfWidth, vfHeight) {
 	let remove = [];
-	vf.loadPixels();
 	for (let i = particles.length - 1; i >= 0; i--) {
 		let p = particles[i];
 		if (p.x >= width || p.x <= 0 || p.y >= height || p.y <= 0) {
@@ -174,13 +177,9 @@ function updateParticles() {
 		let pX = p.x;
 		let pY = p.y;
 
-		let id = floor(pX / width * vf.width) + vf.width * floor(pY / height * vf.height);
-		let r = vf.pixels[id * 4];
-		let g = vf.pixels[id * 4 + 1];
-		let b = vf.pixels[id * 4 + 2];
-
+		let id = floor(pX / width * vfWidth) + vfWidth * floor(pY / height * vfHeight);
 		//update particle
-		let force = colorToVector(r, g, b);
+		let force = vf[id].copy();
 		force.mult(particleSpeed);
 		p.addForce(force.x, force.y);
 		p.update();
