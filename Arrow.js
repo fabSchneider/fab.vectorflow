@@ -3,7 +3,7 @@ function arrow(anchor, dir, size) {
   start = p5.Vector.add(anchor, p5.Vector.mult(dir, -size));
   end = p5.Vector.add(anchor, p5.Vector.mult(dir, size));
   line(start.x, start.y, end.x, end.y);
-  perp = createVector(dir.y, -dir.x);
+  let perp = createVector(dir.y, -dir.x);
 
   let arrowHeadSize = size / 5;
   let x1 = end.x - perp.x * arrowHeadSize;

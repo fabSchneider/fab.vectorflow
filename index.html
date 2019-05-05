@@ -8,27 +8,24 @@
 
 	<title>VectorFlow</title>
 
+	<style src="style.css"></style>
+
 	<script src="libraries/p5.js"></script>
 	<script src="libraries/p5.dom.js"></script>
 	<script src="libraries/p5.sound.js"></script>
 	<script src="Arrow.js"></script>
 	<script src="Vectorfield.js"></script>
+	<script src="particle.js"></script>
 	<script src="sketch.js"></script>
 
-	<style>
-		body {
-			margin: 0;
-			padding: 0;
-			overflow: hidden;
-		}
 
-		canvas {
-			margin: auto;
-		}
-	</style>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
+	<input id="toggleVectorfield" type="checkbox" value="ShowVectorfield" />
+	<!-- 	<input class="btn" type="checkbox"> -->
+	<button id="spawnParticles" class="btn"><i class="fa fa-home"></i></button>
 </body>
 
 </html>

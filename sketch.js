@@ -1,7 +1,9 @@
 let vf;
 
+let maxSize = 1000;
+
 let currBrushType = brushType.PULL;
-let brushSize = 50;
+let brushSize = 450;
 let brushIntensity = 1;
 let brushHardness = 0;
 
@@ -14,8 +16,27 @@ let mouseRot;
 
 let mouseDrag = false;
 
+let particles = [];
+let particleCount = 500;
+let particleFade = 10;
+let particleSize = 2;
+let particleSpeed = 10;
+let particleFriction = 0.9;
+
+let particleGraphics;
+
+let showVectorField = true;
+let showParticles = false;
+
 function setup() {
-	createCanvas(windowWidth, windowHeight);
+	document.getElementById("toggleVectorfield").onclick = toggleVectorfieldDisplay;
+	document.getElementById("spawnParticles").onclick = spawnParticles;
+
+	pixelDensity(1);
+	noCursor();
+
+	let cvn = createCanvas(windowWidth, windowHeight - 40);
+	cvn.position(0, 50);
 	background(0);
 	stroke(255);
 	strokeWeight(1);
@@ -27,7 +48,11 @@ function setup() {
 	mouseAcc = 0;
 	mouseRot = 0;
 
-	vf = createVectorField(round(windowWidth / 32), round(windowHeight / 32));
+	vf = createVectorField(round(width / 32), round(height / 32));
+	particleGraphics = createGraphics(width, height);
+	particleGraphics.pixelDensity(1);
+	particleGraphics.strokeWeight(0.1);
+	particleGraphics.stroke(0);
 }
 
 
@@ -45,7 +70,25 @@ function draw() {
 
 	background(0);
 
-	displayVectorField(vf, width, height);
+	if (showParticles) {
+		if (!showVectorField) {
+			particleGraphics.fill(0, particleFade);
+			particleGraphics.noStroke();
+			particleGraphics.strokeWeight(particleSize);
+			particleGraphics.rect(0, 0, width, height);
+			updateParticles();
+		}
+
+		image(particleGraphics, 0, 0, width, height);
+	}
+
+	if (showVectorField)
+		displayVectorField(vf, width, height);
+
+
+	//drawCursor
+	line(mouseX, mouseY - 10, mouseX, mouseY + 10);
+	line(mouseX - 10, mouseY, mouseX + 10, mouseY);
 
 	if (mouseDrag) {
 		//show mouse direction
@@ -58,12 +101,11 @@ function draw() {
 		fill(dirColor);
 		arrow(mouseVector, smoothMouseDir, 100 * mouseAcc);
 		pop();
-
 		paintVectorField(vf, currBrushType, brushSize, brushIntensity, brushHardness);
 	}
-
-	// image(vf, 0, 0, 512, 512);
 }
+
+//////////////////// events ////////////////////
 
 function mouseDragged() {
 	mouseDrag = true;
@@ -81,6 +123,74 @@ function touchMoved() {
 function touchStarted() {
 	if (touches.length == 2) {
 		vf = createVectorField(vf.width, vf.height);
-		console.log("doubleclick");
+	}
+}
+
+function keyPressed() {
+	switch (key) {
+		case ' ':
+			showParticles = !showParticles;
+			if (showParticles)
+				randomParticles(particleCount);
+			break;
+		case 'V':
+			showVectorField = !showVectorField;
+			break;
+		case 'D':
+			console.log(`Pixel count: ${vf.pixels.length}\nWidth: ${vf.width}\nHeight: ${vf.height}`);
+			break;
+	}
+}
+
+function toggleVectorfieldDisplay() {
+	showVectorField = !showVectorField;
+}
+
+function spawnParticles() {
+	showParticles = !showParticles;
+	if (showParticles)
+		randomParticles(particleCount);
+
+}
+
+//////////////////////// particles ///////////////////////////
+
+function randomParticles(amount) {
+	for (i = 0; i < amount; i++) {
+		let p = new Particle(random(width), random(height));
+		particles.unshift(p);
+	}
+}
+
+function updateParticles() {
+	let remove = [];
+	vf.loadPixels();
+	for (let i = particles.length - 1; i >= 0; i--) {
+		let p = particles[i];
+		if (p.x >= width || p.x <= 0 || p.y >= height || p.y <= 0) {
+			particles[i] = new Particle(random(width), random(height));
+			continue;
+		}
+		let pX = p.x;
+		let pY = p.y;
+
+		let id = floor(pX / width * vf.width) + vf.width * floor(pY / height * vf.height);
+		let r = vf.pixels[id * 4];
+		let g = vf.pixels[id * 4 + 1];
+		let b = vf.pixels[id * 4 + 2];
+
+		//update particle
+		let force = colorToVector(r, g, b);
+		force.mult(particleSpeed);
+		p.addForce(force.x, force.y);
+		p.update();
+
+		//get particle color
+		let a = map(p.velX * p.velX + p.velY * p.velY, 0, 10000, 0, 1);
+		let pC = lerpColor(color(`#EA93B7`), color(`#26FAF5`), a);
+
+		//draw particle
+		particleGraphics.stroke(pC);
+		particleGraphics.line(pX, pY, p.x, p.y);
 	}
 }

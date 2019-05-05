@@ -45,15 +45,19 @@ let brushType = {
 }
 
 function displayVectorField(vf, extX, extY) {
-  let scaleX = float(extX) / vf.width;
-  let scaleY = float(extY) / vf.height;
+  let scaleX = extX / vf.width;
+  let scaleY = extY / vf.height;
+  let scale = min(scaleX, scaleY) / 3;
   vf.loadPixels();
-  let d = pixelDensity();
   let count = 4 * vf.width * vf.height;
   for (let i = 0; i < count; i += 4) {
     anchor = getVectorAnchor(vf, i / 4, extX, extY);
     dir = colorToVector(vf.pixels[i], vf.pixels[i + 1], vf.pixels[i + 2]);
-    arrow(anchor, dir, min(scaleX, scaleY) / 3);
+    if (dir.magSq() > 0.001) {
+      arrow(anchor, dir, scale);
+    } else {
+      point(anchor.x, anchor.y);
+    }
   }
 }
 
