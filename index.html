@@ -8,24 +8,62 @@
 
 	<title>VectorFlow</title>
 
-	<style src="style.css"></style>
+
 
 	<script src="libraries/p5.js"></script>
 	<script src="libraries/p5.dom.js"></script>
 	<script src="libraries/p5.sound.js"></script>
-	<script src="Arrow.js"></script>
-	<script src="Vectorfield.js"></script>
-	<script src="particle.js"></script>
 	<script src="sketch.js"></script>
 
-
+	<link href="main.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://use.typekit.net/nsu1rfz.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-	<input id="toggleVectorfield" type="checkbox" value="ShowVectorfield" />
+	<!-- <input id="toggleVectorfield" type="checkbox" value="ShowVectorfield" /> -->
 	<!-- 	<input class="btn" type="checkbox"> -->
-	<button id="spawnParticles" class="btn"><i class="fa fa-home"></i></button>
+	<!-- <button id="spawnParticles" class="btn"><i class="fa fa-home"></i></button> -->
+
+	<label class="container">
+		<input type="radio" name="brushType" id="pull" onclick="setBrushType(brushType.PULL)">
+		<i class="icon-Pull"></i>
+
+	</label>
+	<label class="container">
+		<input type="radio" name="brushType" id="orient" onclick="setBrushType(brushType.ORIENT)">
+		<i class="icon-Orient"></i>
+
+	</label>
+	<label class="container">
+		<input type="radio" name="brushType" id="attract" onclick="setBrushType(brushType.ATTRACT)">
+		<i class="icon-Attract"></i>
+
+	</label>
+	<label class="container">
+		<input type="radio" name="brushType" id="repulse" onclick="setBrushType(brushType.REPULSE)">
+		<i class="icon-Repulse"></i>
+
+	</label>
+	<label class="container">
+		<input type="radio" name="brushType" id="swirlCW" onclick="setBrushType(brushType.SWIRL_CW)">
+		<i class="icon-SwirlCW"></i>
+
+	</label>
+	<label class="container">
+		<input type="radio" name="brushType" id="swirlCCW" onclick="setBrushType(brushType.SWIRL_CCW)">
+		<i class="icon-SwirlCCW"></i>
+
+	</label>
+	<label class="container">
+		<input type="radio" name="brushType" id="erase" onclick="setBrushType(brushType.ERASE)">
+		<i class="icon-Erase"></i>
+	</label>
+
+	<label class="container">
+		<input type="button" name="toggle" id="toggleParticles" onclick="toggleParticles()">
+		<i class="icon-Pull"></i>
+
 </body>
 
 </html>
