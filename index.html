@@ -7,9 +7,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<title>VectorFlow</title>
-
-
-
 	<script src="libraries/p5.js"></script>
 	<script src="libraries/p5.dom.js"></script>
 	<script src="libraries/p5.sound.js"></script>
@@ -21,48 +18,59 @@
 </head>
 
 <body>
-	<!-- <input id="toggleVectorfield" type="checkbox" value="ShowVectorfield" /> -->
-	<!-- 	<input class="btn" type="checkbox"> -->
-	<!-- <button id="spawnParticles" class="btn"><i class="fa fa-home"></i></button> -->
+	<div class="controls">
+		<div class="container">
+			<input type="radio" name="brushType" class= "brush-tool" id="pull" checked>
+			<i class="icon-pull"></i>
+		</div>
+		<div class="container">
+			<input type="radio" name="brushType" class= "brush-tool" id="orient">
+			<i class="icon-orient"></i>
+		</div>
+		<div class="container">
+			<input type="radio" name="brushType" class= "brush-tool" id="attract" >
+			<i class="icon-attract"></i>
+		</div>
+		<div class="container">
+			<input type="radio" name="brushType" class= "brush-tool" id="repulse" >
+			<i class="icon-repulse"></i>
+		</div>
+		<div class="container">
+			<input type="radio" name="brushType" class= "brush-tool" id="swirl-cw">
+			<i class="icon-swirl-cw"></i>
+		</div>
+		<div class="container">
+			<input type="radio" name="brushType" class= "brush-tool" id="swirl-ccw">
+			<i class="icon-swirl-ccw"></i>
+		</div>
+		<div class="container">
+			<input type="radio" name="brushType" class= "brush-tool" id="erase">
+			<i class="icon-erase"></i>
+		</div>
 
-	<label class="container">
-		<input type="radio" name="brushType" id="pull" onclick="setBrushType(brushType.PULL)">
-		<i class="icon-Pull"></i>
+		<div class="container">
+			<input type="checkbox" id="show-vectorfield" checked>
+			<i class="icon-show-vectorfield"></i>
+		</div>
 
-	</label>
-	<label class="container">
-		<input type="radio" name="brushType" id="orient" onclick="setBrushType(brushType.ORIENT)">
-		<i class="icon-Orient"></i>
+		<div class="container">
+			<input type="button"  id="play-simulation">
+			<i class="icon-play"></i>
+		</div>
+		<div class="container">
+			<input type="checkbox"  id="pause-simulation" disabled>
+			<i class="icon-pause"></i>
+		</div>
 
-	</label>
-	<label class="container">
-		<input type="radio" name="brushType" id="attract" onclick="setBrushType(brushType.ATTRACT)">
-		<i class="icon-Attract"></i>
+		<div class="slidercontainer">
+			<input type="range" min="0" max="100" value="20" class="slider" id="brush-size">
+		</div>
+		<div class="slidercontainer">
+			<input type="range" min="0" max="100" value="30" class="slider" id="brush-intensity">
+		</div>
+	</div>
 
-	</label>
-	<label class="container">
-		<input type="radio" name="brushType" id="repulse" onclick="setBrushType(brushType.REPULSE)">
-		<i class="icon-Repulse"></i>
-
-	</label>
-	<label class="container">
-		<input type="radio" name="brushType" id="swirlCW" onclick="setBrushType(brushType.SWIRL_CW)">
-		<i class="icon-SwirlCW"></i>
-
-	</label>
-	<label class="container">
-		<input type="radio" name="brushType" id="swirlCCW" onclick="setBrushType(brushType.SWIRL_CCW)">
-		<i class="icon-SwirlCCW"></i>
-
-	</label>
-	<label class="container">
-		<input type="radio" name="brushType" id="erase" onclick="setBrushType(brushType.ERASE)">
-		<i class="icon-Erase"></i>
-	</label>
-
-	<label class="container">
-		<input type="button" name="toggle" id="toggleParticles" onclick="toggleParticles()">
-		<i class="icon-Pull"></i>
+	<div id="p5-container"></div>
 
 </body>
 

@@ -1,10 +1,10 @@
-let brushType = {
+ let brushType = {
 	PULL: 'pull',
 	ORIENT: 'orient',
 	ATTRACT: 'attract',
 	REPULSE: 'repulse',
-	SWIRL_CW: 'swirlCW',
-	SWIRL_CCW: 'swirlCCW',
+	SWIRL_CW: 'swirl-cw',
+	SWIRL_CCW: 'swirl-ccw',
 	ERASE: 'erase'
 };
 
@@ -15,10 +15,11 @@ let vg;
 
 let maxSize = 1000;
 
-let currBrushType = brushType.PULL;
-let brushSize = 200;
-let brushIntensity = 1;
-let brushHardness = 0;
+let currBrushType;
+let brushSizeMin = 20;
+let brushSizeMax = 500;
+let brushSize;
+let brushIntensity;
 
 let mouseVector;
 let pmouseVector;
@@ -26,7 +27,6 @@ let mouseDir;
 let smoothMouseDir;
 let mouseAcc;
 let mouseRot;
-
 let mouseDrag = false;
 
 let particles = [];
@@ -39,21 +39,42 @@ let particleColor1 = `#EA93B7`;
 let particleColor2 = `#26FAF5`;
 
 let particleGraphics;
+let trailGraphics;
 
 let showVectorField = true;
 let showParticles = false;
+let simulationStarted = false;
+let runSimulation = false;
+
+// left: 37, up: 38, right: 39, down: 40,
+// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
+var keys = {
+	37: 1,
+	38: 1,
+	39: 1,
+	40: 1
+};
+
 
 function setup() {
-	//document.getElementById("toggleVectorfield").onclick = toggleVectorfieldDisplay;
-	//document.getElementById("spawnParticles").onclick = spawnParticles;
+	setupControls();
 
-	document.getElementById("pull").checked = "checked";
+	document.addEventListener('ontouchstart', function (e) {
+		document.body.style.overflow = "hidden";
+	}, false);
+
+	document.addEventListener('ontouchmove', function (e) {
+		document.body.style.overflow = "auto";
+	}, false);
+
 	pixelDensity(1);
 	noCursor();
 
-	let cvn = createCanvas(windowWidth, windowHeight - 40);
-	cvn.position(0, 50);
-	background(0);
+	let cnvContainer = document.getElementById("p5-container");
+	let cnv = createCanvas(cnvContainer.clientWidth, cnvContainer.clientHeight);
+	cnv.parent(cnvContainer)
+	//cnv.position(0, 100);
+
 	stroke(255);
 	strokeWeight(1);
 
@@ -64,21 +85,61 @@ function setup() {
 	mouseAcc = 0;
 	mouseRot = 0;
 
-	vfWidth = round(width / 64);
-	vfHeight = round(height / 64);
+	vfWidth = round(width / 50);
+	vfHeight = round(height / 50);
 	vf = createVectorField(vfWidth, vfHeight);
-	vg = createGraphics(width, height);
+	vg = createGraphics(width * pixelDensity(), height * pixelDensity());
 	vg.stroke(255);
 	vg.pixelDensity(1);
 	vg.fill(255);
 
-	particleGraphics = createGraphics(width, height);
+	particleGraphics = createGraphics(width * pixelDensity(), height * pixelDensity());
 	particleGraphics.pixelDensity(1);
 	particleGraphics.strokeWeight(0.1);
 	particleGraphics.stroke(0);
 
+	trailGraphics = createGraphics(width * pixelDensity(), height * pixelDensity());
+
+	//addParticles(particleCount);
 }
 
+function setupControls(){
+	//document.getElementById("tool-pull").checked = "checked";
+
+	document.querySelectorAll(".brush-tool").forEach(element => {
+		if(element.checked){
+			setBrushType(element.id);
+		}
+		element.onclick = () => setBrushType(element.id);
+	});
+
+	let showVectorfieldOption = document.getElementById("show-vectorfield");
+	showVectorfieldOption.onchange = () => showVectorField = showVectorfieldOption.checked;
+	showVectorField = showVectorfieldOption.checked;
+
+	let pauseSim = document.getElementById("pause-simulation");
+	pauseSim.onclick = togglePauseSimulation;
+	pauseSim.checked = runSimulation;
+	pauseSim.disabled = !runSimulation;	
+
+	let playSim = document.getElementById("play-simulation");
+	playSim.onclick = () =>{
+		togglePlaySimulation();
+		showVectorfieldOption.checked = !runSimulation;
+		showVectorField = !runSimulation;
+		if(!runSimulation)
+			pauseSim.checked = false;
+		pauseSim.disabled = !runSimulation;	
+	}; 
+
+	let sizeControl = document.getElementById("brush-size");
+	sizeControl.onchange = () => setBrushSize(sizeControl.value);
+	setBrushSize(sizeControl.value);
+
+	let intensityControl = document.getElementById("brush-intensity");
+	intensityControl.onchange = () => setBrushIntensity(intensityControl.value);
+	setBrushIntensity(intensityControl.value);
+}
 
 function draw() {
 	//mouse variables
@@ -86,24 +147,28 @@ function draw() {
 	mouseVector = createVector(mouseX, mouseY);
 	mouseDir = p5.Vector.sub(mouseVector, pmouseVector);
 	mouseAcc = 20;
-	mouseAcc = map(mouseDir.mag(), 3, 35, 0, 1);
+	mouseAcc = map(mouseDir.mag(), 0, 35, 0, 1);
 	mouseAcc = constrain(mouseAcc, 0, 1);
 	mouseDir.normalize();
 	smoothMouseDir = p5.Vector.lerp(smoothMouseDir, mouseDir, mouseAcc);
 	mouseRot = atan2(smoothMouseDir.y, smoothMouseDir.x);
+	clear();
 
-	background(0);
-
-	if (showParticles) {
-		if (!showVectorField) {
-			particleGraphics.fill(0, particleFade);
+	if (showParticles) {	
+		if(runSimulation){
+			particleGraphics.clear();
+			particleGraphics.fill(0,0);
 			particleGraphics.noStroke();
 			particleGraphics.strokeWeight(particleSize);
 			particleGraphics.rect(0, 0, width, height);
 			updateParticles(vf, vfWidth, vfHeight);
+			fadeGraphic(trailGraphics, particleFade);
+			trailGraphics.image(particleGraphics, 0, 0, width, height);
+			image(trailGraphics, 0, 0, width, height);
 		}
-
-		image(particleGraphics, 0, 0, width, height);
+		else{
+			image(trailGraphics, 0, 0, width, height);
+		}
 	}
 
 	if (showVectorField) {
@@ -116,48 +181,50 @@ function draw() {
 
 	///////////////////////
 
-	let v = getVectorInterpolated(mouseX, mouseY, vf, vfWidth, vfHeight);
-	arrow(mouseVector, v, 40);
+	//let v = getVectorInterpolated(mouseX, mouseY, vf, vfWidth, vfHeight);
+	//arrow(mouseVector, v, 40);
 
 	//////////////////////////////
 	if (mouseDrag) {
-		//show mouse direction
-		noCursor();
+		// //show mouse direction
 		push();
 		noFill();
-		ellipse(mouseX, mouseY, brushSize, brushSize);
-		let dirColor = vectorToColor(smoothMouseDir);
-		stroke(dirColor);
-		fill(dirColor);
-		arrow(mouseVector, smoothMouseDir, 100 * mouseAcc);
+		ellipse(mouseX, mouseY, brushSize * 2, brushSize * 2);
+		// let dirColor = vectorToColor(smoothMouseDir);
+		// stroke(dirColor);
+		// fill(dirColor);
+		// arrow(mouseVector, smoothMouseDir, 100 * mouseAcc);
 		pop();
-		paintVectorField(vf, vfWidth, vfHeight, currBrushType, brushSize, brushIntensity, brushHardness);
+		paintVectorField(vf, vfWidth, vfHeight, currBrushType, brushSize, brushIntensity);
 	}
 }
 
 //////////////////// events ////////////////////
 
 function mouseDragged() {
-	mouseDrag = true;
+	mouseDrag = mouseOverCanvas();
 }
 
 function mouseReleased() {
 	mouseDrag = false;
 }
 
+
 function touchMoved() {
-	mouseDrag = true;
-	return false;
+	mouseDrag = !mouseOverCanvas();
 }
 
-
+function mouseOverCanvas(){
+	return mouseX >= 0 && mouseX < width && 
+		   mouseY >= 0 && mouseY < height;
+}
 
 function keyPressed() {
 	switch (key) {
 		case ' ':
 			showParticles = !showParticles;
 			if (showParticles)
-				randomParticles(particleCount);
+				addParticles(particleCount);
 			break;
 		case 'V':
 			showVectorField = !showVectorField;
@@ -165,17 +232,28 @@ function keyPressed() {
 	}
 }
 
-function toggleParticles() {
-	if (showParticles) {
+function togglePlaySimulation(){
+	if(simulationStarted){
+		//stop simulation
+		runSimulation = false;
 		showParticles = false;
-		showVectorField = true;
-	} else {
-		if (particles.length == 0) {
-			particles.length = 0;
-			randomParticles(particleCount);
-		}
+		simulationStarted = false;
+		console.log("Stop Simulation");
+	}else{
+		//start simulation
+		resetParticles();
+		trailGraphics.clear();
+		runSimulation = true;
 		showParticles = true;
-		showVectorField = false;
+		simulationStarted = true;
+		console.log("Start Simulation");
+	}
+}
+
+function togglePauseSimulation(){
+	if(simulationStarted){
+		runSimulation = ! runSimulation	
+		console.log(runSimulation ? "Unpause" : "Pause");
 	}
 }
 
@@ -183,12 +261,20 @@ function toggleVectorfieldDisplay() {
 	showVectorField = !showVectorField;
 }
 
-function spawnParticles() {
-	showParticles = !showParticles;
-	if (showParticles)
-		randomParticles(particleCount);
-
+function resetParticles(){
+	if(particles.length != particleCount){
+		particles = [];
+		for (let i = 0; i < particleCount; i++) {
+			particles.unshift(new Particle(random(width), random(height)));		
+		}
+	}
+	else{
+		for (let i = 0; i < particles.length; i++) {
+			particles[i].respawn(random(width), random(height));		
+		}
+	}
 }
+
 
 //////////////////////// particles ///////////////////////////
 
@@ -204,7 +290,7 @@ class Particle {
 		this.velY = 0;
 		this.damping = particleFriction;
 
-		this.lifeTime = random(5, 20);
+		this.lifeTime = random(2, 5);
 	}
 
 	addForce(forceX, forceY) {
@@ -219,14 +305,16 @@ class Particle {
 		this.velY = this.accY;
 		this.x += this.velX / frameRate();
 		this.y += this.velY / frameRate();
-		//this.lifeTime -= 1 / frameRate();
+
+		if ((abs(this.velX) + abs(this.velY)) < 5)
+			this.lifeTime -= 1 / frameRate();
 	}
 
 	respawn(x, y) {
 		this.x = x;
 		this.y = y;
 
-		this.lifeTime = random(5, 20);
+		this.lifeTime = random(2, 5);
 		this.accX = 0;
 		this.accY = 0;
 
@@ -236,7 +324,7 @@ class Particle {
 }
 
 
-function randomParticles(amount) {
+function addParticles(amount) {
 	for (i = 0; i < amount; i++) {
 		let p = new Particle(random(width), random(height));
 		particles.unshift(p);
@@ -273,13 +361,30 @@ function updateParticles(vf, vfWidth, vfHeight) {
 	}
 }
 
+function fadeGraphic(g, fadeAmount) {
+	g.loadPixels();
+	for (let i = 3; i < g.pixels.length; i += 4) {
+		 g.pixels[i] = g.pixels[i] - fadeAmount;
+	}
+	g.updatePixels();
+  }
+
 //////////////////////// Vectorfield ///////////////////////////////
 
 function setBrushType(type) {
 	currBrushType = type;
-	console.log(type);
+	console.log("Brush Type: " + type);
 }
 
+function setBrushSize(val) {
+	brushSize = map(val, 0, 100, brushSizeMin, brushSizeMax);
+	console.log("Brush Size: " + brushIntensity);
+}
+
+function setBrushIntensity(val) {
+	brushIntensity = map(val, 0, 100, 0, 1);
+	console.log("Brush Intensity: " + brushIntensity);
+}
 
 function createVectorField(_width, _height) {
 	let vf = [];
@@ -314,13 +419,14 @@ function displayVectorField(vg, vf, vfWidth, vfHeight, extX, extY) {
 	image(vg, 0, 0, width, height);
 }
 
-function paintVectorField(vf, vfWidth, vfHeight, type, brushSize, intensity, hardness) {
+function paintVectorField(vf, vfWidth, vfHeight, type, brushSize, intensity) {
 	for (let i = 0; i < vfWidth * vfHeight; i++) {
 		let anchor = getVectorAnchor(vfWidth, vfHeight, i, width, height);
 		let dist = p5.Vector.sub(anchor, mouseVector).magSq();
 		let amt = map(dist, 0, brushSize * brushSize, 1, 0);
 		amt = constrain(amt, 0, 1);
-		if (amt == 0)
+		//amt = pow(amt, 20);
+		if (amt == 0 || mouseAcc == 0)
 			continue;
 		amt *= intensity;
 		let oldV = vf[i];
