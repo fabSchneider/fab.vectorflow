@@ -113,41 +113,44 @@ function setupControls(){
 		input.name = "brushType"
 		input.type ="radio";
 		input.id = type;
+		input.value = type;
 		input.classList.add("brush-tool");
+		input.onclick = () => setBrushType(type);
 		controls.appendChild(input);
 	});
 
+	let showVectorfieldInput = document.createElement("INPUT");
+	showVectorfieldInput.type ="checkbox";
+	showVectorfieldInput.value = "show Vectorfield"
+	showVectorfieldInput.id = "show-vectorfield";
+	showVectorfieldInput.onchange = () => showVectorField = showVectorfieldInput.checked;
+	showVectorField = showVectorfieldInput.checked;
+	controls.appendChild(showVectorfieldInput);
 
-	document.querySelectorAll(".brush-tool").forEach(element => {
-		if(element.checked){
-			setBrushType(element.id);
-		}
-		element.onclick = () => setBrushType(element.id);
-	});
-
-	let showVectorfieldOption = document.getElementById("show-vectorfield");
-	if(showVectorfieldOption != null){
-		showVectorfieldOption.onchange = () => showVectorField = showVectorfieldOption.checked;
-		showVectorField = showVectorfieldOption.checked;
-	}
+	let pauseInput = document.createElement("INPUT");
+	pauseInput.value = "pause";
+	pauseInput.type ="checkbox";
+	pauseInput.id = "pause-sim";
+	pauseInput.onclick = togglePauseSimulation;
+	pauseInput.checked = runSimulation;
+	pauseInput.disabled = !runSimulation;	
 
 
-	let pauseSim = document.getElementById("pause-simulation");
-	let playSim = document.getElementById("play-simulation");
-	if(pauseSim != null && playSim != null){
-		pauseSim.onclick = togglePauseSimulation;
-		pauseSim.checked = runSimulation;
-		pauseSim.disabled = !runSimulation;	
-		
-		playSim.onclick = () =>{
-			togglePlaySimulation();
-			showVectorfieldOption.checked = !runSimulation;
-			showVectorField = !runSimulation;
-			if(!runSimulation)
-				pauseSim.checked = false;
-			pauseSim.disabled = !runSimulation;	
-		}; 
-	}
+	let playInput = document.createElement("INPUT");
+	playInput.type ="button";
+	playInput.value = "play";
+	playInput.id = "play-sim";
+	playInput.onclick = () =>{
+		togglePlaySimulation();
+		showVectorfieldInput.checked = !runSimulation;
+		showVectorField = !runSimulation;
+		if(!runSimulation)
+			pauseInput.checked = false;
+		pauseInput.disabled = !runSimulation;	
+	}; 
+
+	controls.appendChild(pauseInput);
+	controls.appendChild(playInput);
 
 	let sizeControl = document.getElementById("brush-size");
 	if(sizeControl != null){
