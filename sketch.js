@@ -126,31 +126,45 @@ function setupControls(){
 	});
 
 	let showVectorfieldOption = document.getElementById("show-vectorfield");
-	showVectorfieldOption.onchange = () => showVectorField = showVectorfieldOption.checked;
-	showVectorField = showVectorfieldOption.checked;
+	if(showVectorfieldOption != null){
+		showVectorfieldOption.onchange = () => showVectorField = showVectorfieldOption.checked;
+		showVectorField = showVectorfieldOption.checked;
+	}
+
 
 	let pauseSim = document.getElementById("pause-simulation");
-	pauseSim.onclick = togglePauseSimulation;
-	pauseSim.checked = runSimulation;
-	pauseSim.disabled = !runSimulation;	
-
 	let playSim = document.getElementById("play-simulation");
-	playSim.onclick = () =>{
-		togglePlaySimulation();
-		showVectorfieldOption.checked = !runSimulation;
-		showVectorField = !runSimulation;
-		if(!runSimulation)
-			pauseSim.checked = false;
+	if(pauseSim != null && playSim != null){
+		pauseSim.onclick = togglePauseSimulation;
+		pauseSim.checked = runSimulation;
 		pauseSim.disabled = !runSimulation;	
-	}; 
+		
+		playSim.onclick = () =>{
+			togglePlaySimulation();
+			showVectorfieldOption.checked = !runSimulation;
+			showVectorField = !runSimulation;
+			if(!runSimulation)
+				pauseSim.checked = false;
+			pauseSim.disabled = !runSimulation;	
+		}; 
+	}
 
 	let sizeControl = document.getElementById("brush-size");
-	sizeControl.onchange = () => setBrushSize(sizeControl.value);
-	setBrushSize(sizeControl.value);
+	if(sizeControl != null){
+		sizeControl.onchange = () => setBrushSize(sizeControl.value);
+		setBrushSize(sizeControl.value);
+	}else{
+		setBrushSize(30);
+	}
+
 
 	let intensityControl = document.getElementById("brush-intensity");
+	if(intensityControl != null){
 	intensityControl.onchange = () => setBrushIntensity(intensityControl.value);
 	setBrushIntensity(intensityControl.value);
+	}else{
+		setBrushIntensity(30);
+	}
 }
 
 function draw() {
