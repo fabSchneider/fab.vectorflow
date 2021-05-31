@@ -160,8 +160,8 @@ function setupControls(){
 
 	let intensityControl = document.getElementById("brush-intensity");
 	if(intensityControl != null){
-	intensityControl.onchange = () => setBrushIntensity(intensityControl.value);
-	setBrushIntensity(intensityControl.value);
+		intensityControl.onchange = () => setBrushIntensity(intensityControl.value);
+		setBrushIntensity(intensityControl.value);
 	}else{
 		setBrushIntensity(30);
 	}
@@ -404,7 +404,7 @@ function setBrushType(type) {
 
 function setBrushSize(val) {
 	brushSize = map(val, 0, 100, brushSizeMin, brushSizeMax);
-	console.log("Brush Size: " + brushIntensity);
+	console.log("Brush Size: " + brushSize);
 }
 
 function setBrushIntensity(val) {
