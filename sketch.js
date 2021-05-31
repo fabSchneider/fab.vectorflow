@@ -106,6 +106,18 @@ function setup() {
 function setupControls(){
 	//document.getElementById("tool-pull").checked = "checked";
 
+	let controls = document.getElementById("controls");
+
+	Object.values(brushType).forEach(type => {
+		let input = document.createElement("INPUT");
+		input.name = "brushType"
+		input.type ="radio";
+		input.id = type;
+		input.classList.add("brush-tool");
+		controls.appendChild(input);
+	});
+
+
 	document.querySelectorAll(".brush-tool").forEach(element => {
 		if(element.checked){
 			setBrushType(element.id);
