@@ -70,10 +70,9 @@ function setup() {
 	pixelDensity(1);
 	noCursor();
 
-	let cnvContainer = document.getElementById("p5-container");
+	let cnvContainer = document.querySelector(".p5-container");
 	let cnv = createCanvas(cnvContainer.clientWidth, cnvContainer.clientHeight);
 	cnv.parent(cnvContainer)
-	//cnv.position(0, 100);
 
 	stroke(255);
 	strokeWeight(1);
@@ -104,9 +103,7 @@ function setup() {
 }
 
 function setupControls(){
-	//document.getElementById("tool-pull").checked = "checked";
-
-	let controls = document.getElementById("controls");
+	let controls = document.querySelector(".p5-controls");
 
 	Object.values(brushType).forEach(type => {
 		let input = document.createElement("INPUT");
@@ -117,6 +114,11 @@ function setupControls(){
 		input.classList.add("brush-tool");
 		input.onclick = () => setBrushType(type);
 		controls.appendChild(input);
+		let label = document.createElement("LABEL");
+		label.for = type;
+		label.innerText = "";
+		label.classList.add("brush-tool__label");
+		controls.appendChild(label)
 	});
 
 	let showVectorfieldInput = document.createElement("INPUT");
