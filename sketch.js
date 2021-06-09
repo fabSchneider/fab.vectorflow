@@ -101,7 +101,7 @@ function setup(){
 	trailGraphics = createGraphics(width * pixelDensity(), height * pixelDensity());
 
 	noLoop();
-	cnvContainer.classList.add("p5-container--hidden");
+	//cnvContainer.classList.add("p5-container--hidden");
 	//addParticles(particleCount);
 }
 
