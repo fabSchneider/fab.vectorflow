@@ -38,6 +38,8 @@ let particleFriction = 0.7;
 let particleColor1 = `#EA93B7`;
 let particleColor2 = `#26FAF5`;
 
+let vectorfieldColor = 0;
+
 let particleGraphics;
 let trailGraphics;
 
@@ -55,8 +57,7 @@ var keys = {
 	40: 1
 };
 
-
-function setup() {
+function setup(){
 	setupControls();
 
 	document.addEventListener('ontouchstart', function (e) {
@@ -74,7 +75,7 @@ function setup() {
 	let cnv = createCanvas(cnvContainer.clientWidth, cnvContainer.clientHeight);
 	cnv.parent(cnvContainer)
 
-	stroke(255);
+	stroke(vectorfieldColor);
 	strokeWeight(1);
 
 	mouseVector = createVector(0, 0);
@@ -88,9 +89,9 @@ function setup() {
 	vfHeight = round(height / 50);
 	vf = createVectorField(vfWidth, vfHeight);
 	vg = createGraphics(width * pixelDensity(), height * pixelDensity());
-	vg.stroke(255);
+	vg.stroke(vectorfieldColor);
 	vg.pixelDensity(1);
-	vg.fill(255);
+	vg.fill(vectorfieldColor);
 
 	particleGraphics = createGraphics(width * pixelDensity(), height * pixelDensity());
 	particleGraphics.pixelDensity(1);
@@ -99,62 +100,71 @@ function setup() {
 
 	trailGraphics = createGraphics(width * pixelDensity(), height * pixelDensity());
 
+	noLoop();
+	cnvContainer.classList.add("p5-container--hidden");
 	//addParticles(particleCount);
+}
+
+function startSketch(){
+	document.querySelector(".p5-container").classList.remove("p5-container--hidden");
+	loop();
+}
+
+function stopSketch(){
+	noLoop();
+	document.querySelector(".p5-container").classList.add("p5-container--hidden");
 }
 
 function setupControls(){
 	let controls = document.querySelector(".p5-controls");
 
 	Object.values(brushType).forEach(type => {
-		let input = document.createElement("INPUT");
-		input.name = "brushType"
-		input.type ="radio";
-		input.id = type;
-		input.value = type;
-		input.classList.add("brush-tool");
+		var input = controls.querySelector('#' + type)
 		input.onclick = () => setBrushType(type);
-		controls.appendChild(input);
-		let label = document.createElement("LABEL");
-		label.for = type;
-		label.innerText = "";
-		label.classList.add("brush-tool__label");
-		controls.appendChild(label)
+
+		if(input.checked){
+			setBrushType(type);
+		}
 	});
 
-	let showVectorfieldInput = document.createElement("INPUT");
-	showVectorfieldInput.type ="checkbox";
-	showVectorfieldInput.value = "show Vectorfield"
-	showVectorfieldInput.id = "show-vectorfield";
+	let showVectorfieldInput = controls.querySelector('#show-vectorfield');
 	showVectorfieldInput.onchange = () => showVectorField = showVectorfieldInput.checked;
 	showVectorField = showVectorfieldInput.checked;
-	controls.appendChild(showVectorfieldInput);
 
-	let pauseInput = document.createElement("INPUT");
+	let pauseInput = controls.querySelector('#pause-simulation');
 	pauseInput.value = "pause";
 	pauseInput.type ="checkbox";
-	pauseInput.id = "pause-sim";
 	pauseInput.onclick = togglePauseSimulation;
 	pauseInput.checked = runSimulation;
 	pauseInput.disabled = !runSimulation;	
 
 
-	let playInput = document.createElement("INPUT");
-	playInput.type ="button";
-	playInput.value = "play";
-	playInput.id = "play-sim";
+	let playInput = controls.querySelector('#play-simulation');
+	let stopInput = controls.querySelector('#stop-simulation');
+
 	playInput.onclick = () =>{
 		togglePlaySimulation();
 		showVectorfieldInput.checked = !runSimulation;
 		showVectorField = !runSimulation;
-		if(!runSimulation)
-			pauseInput.checked = false;
-		pauseInput.disabled = !runSimulation;	
+		playInput.parentElement.classList.add("control--hidden");
+		stopInput.parentElement.classList.remove("control--hidden");
+		pauseInput.checked = false;
+		pauseInput.disabled = false;	
 	}; 
 
-	controls.appendChild(pauseInput);
-	controls.appendChild(playInput);
 
-	let sizeControl = document.getElementById("brush-size");
+	stopInput.onclick = () =>{
+		togglePlaySimulation();
+		showVectorfieldInput.checked = !runSimulation;
+		showVectorField = !runSimulation;
+		playInput.parentElement.classList.remove("control--hidden");
+		stopInput.parentElement.classList.add("control--hidden");
+		pauseInput.checked = false;
+		pauseInput.disabled = true;	
+	}; 
+
+
+	let sizeControl = controls.querySelector("#brush-size");
 	if(sizeControl != null){
 		sizeControl.onchange = () => setBrushSize(sizeControl.value);
 		setBrushSize(sizeControl.value);
@@ -163,7 +173,7 @@ function setupControls(){
 	}
 
 
-	let intensityControl = document.getElementById("brush-intensity");
+	let intensityControl = controls.querySelector("#brush-intensity");
 	if(intensityControl != null){
 		intensityControl.onchange = () => setBrushIntensity(intensityControl.value);
 		setBrushIntensity(intensityControl.value);
@@ -485,13 +495,13 @@ function paintVectorField(vf, vfWidth, vfHeight, type, brushSize, intensity) {
 				break;
 
 			case brushType.SWIRL_CW:
-				vec = p5.Vector.sub(anchor, mouseVector).normalize();
+				vec = p5.Vector.sub(mouseVector, anchor).normalize();
 				perp = createVector(vec.y, -vec.x);
 				newV = p5.Vector.lerp(oldV, perp, amt);
 				break;
 
 			case brushType.SWIRL_CCW:
-				vec = p5.Vector.sub(mouseVector, anchor).normalize();
+				vec = p5.Vector.sub(anchor, mouseVector).normalize();
 				perp = createVector(vec.y, -vec.x);
 				newV = p5.Vector.lerp(oldV, perp, amt);
 				break;

@@ -13,64 +13,89 @@
 	<script src="sketch.js"></script>
 
 	<link href="main.css" rel="stylesheet">
-	<link rel="stylesheet" href="https://use.typekit.net/nsu1rfz.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-	<div class="controls" id="controls">
-		<!-- <div class="container">
-			<input type="radio" name="brushType" class= "brush-tool" id="pull" checked>
-			<i class="icon-pull"></i>
-		</div> -->
-		<!-- <div class="container">
-			<input type="radio" name="brushType" class= "brush-tool" id="orient">
-			<i class="icon-orient"></i>
+	<div class="p5-controls" id="controls">
+		<div class="control">
+			<input type="radio" name="brushType" class="brush-tool" id="pull" checked>
+			<label class="control__label" for="pull"></label>
+			<span class="tooltip-text">Pull</span>
 		</div>
-		<div class="container">
-			<input type="radio" name="brushType" class= "brush-tool" id="attract" >
-			<i class="icon-attract"></i>
+		<div class="control">
+			<input type="radio" name="brushType" class="brush-tool" id="orient">
+			<label class="control__label" for="orient"></label>
+			<span class="tooltip-text">Orient</span>
 		</div>
-		<div class="container">
-			<input type="radio" name="brushType" class= "brush-tool" id="repulse" >
-			<i class="icon-repulse"></i>
+		<div class="control">
+			<input type="radio" name="brushType" class="brush-tool" id="attract">
+			<label class="control__label" for="attract"></label>
+			<span class="tooltip-text">Attract</span>
 		</div>
-		<div class="container">
-			<input type="radio" name="brushType" class= "brush-tool" id="swirl-cw">
-			<i class="icon-swirl-cw"></i>
+		<div class="control">
+			<input type="radio" name="brushType" class="brush-tool" id="repulse">
+			<label class="control__label" for="repulse"></label>
 		</div>
-		<div class="container">
-			<input type="radio" name="brushType" class= "brush-tool" id="swirl-ccw">
-			<i class="icon-swirl-ccw"></i>
+		<div class="control">
+			<input type="radio" name="brushType" class="brush-tool" id="swirl-cw">
+			<label class="control__label" for="swirl-cw"></label>
+			<span class="tooltip-text">Swirl clockwise</span>
 		</div>
-		<div class="container">
-			<input type="radio" name="brushType" class= "brush-tool" id="erase">
-			<i class="icon-erase"></i>
-		</div> -->
-<!-- 
-		<div class="container">
+		<div class="control">
+			<input type="radio" name="brushType" class="brush-tool" id="swirl-ccw">
+			<label class="control__label" for="swirl-ccw"></label>
+			<span class="tooltip-text">Swirl counter-clockwise</span>
+		</div>
+		<div class="control">
+			<input type="radio" name="brushType" class="brush-tool" id="erase">
+			<label class="control__label" for="erase"></label>
+			<span class="tooltip-text">Erase</span>
+		</div>
+
+		<div class="control">
 			<input type="checkbox" id="show-vectorfield" checked>
-			<i class="icon-show-vectorfield"></i>
+			<label class="control__label" for="show-vectorfield"></label>
+			<span class="tooltip-text">Show Vector Field</span>
 		</div>
 
-		<div class="container">
-			<input type="button"  id="play-simulation">
-			<i class="icon-play"></i>
+		<div class="control">
+			<input type="button" id="play-simulation">
+			<label class="control__label" for="play-simulation"></label>
+			<span class="tooltip-text">Play</span>
 		</div>
-		<div class="container">
-			<input type="checkbox"  id="pause-simulation" disabled>
-			<i class="icon-pause"></i>
-		</div> -->
+		<div class="control control--hidden">
+			<input type="button" id="stop-simulation">
+			<label class="control__label" for="stop-simulation"></label>
+			<span class="tooltip-text">Stop</span>
+		</div>
 
-		<div class="slidercontainer">
+		<div class="control">
+			<input type="checkbox" id="pause-simulation" disabled>
+			<label class="control__label" for="pause-simulation"></label>
+			<span class="tooltip-text">Pause</span>
+		</div>
+
+		<div class="slider-control">
 			<input type="range" min="0" max="100" value="20" class="slider" id="brush-size">
+			<span class="tooltip-text">Brush Size</span>
 		</div>
-		<div class="slidercontainer">
+		<div class="slider-control">
 			<input type="range" min="0" max="100" value="30" class="slider" id="brush-intensity">
+			<span class="tooltip-text">Brush Intensity</span>
 		</div>
 	</div>
 
-	<div id="p5-container"></div>
+	<div class="p5-container"></div>
+
+	<button id="start-btn">Start</button>
+
+
+<script>
+	document.querySelector("#start-btn").onclick = () =>{
+		startSketch();
+		console.log("hey");
+	}
+</script>
 
 </body>
 
