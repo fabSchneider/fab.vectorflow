@@ -243,7 +243,7 @@ function mouseReleased() {
 
 
 function touchMoved() {
-	mouseDrag = !mouseOverCanvas();
+	mouseDrag = mouseOverCanvas();
 }
 
 function mouseOverCanvas(){
