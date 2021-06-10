@@ -220,21 +220,12 @@ function draw() {
 	line(mouseX, mouseY - 10, mouseX, mouseY + 10);
 	line(mouseX - 10, mouseY, mouseX + 10, mouseY);
 
-	///////////////////////
-
-	//let v = getVectorInterpolated(mouseX, mouseY, vf, vfWidth, vfHeight);
-	//arrow(mouseVector, v, 40);
-
 	//////////////////////////////
 	if (mouseDrag) {
 		// //show mouse direction
 		push();
 		noFill();
 		ellipse(mouseX, mouseY, brushSize * 2, brushSize * 2);
-		// let dirColor = vectorToColor(smoothMouseDir);
-		// stroke(dirColor);
-		// fill(dirColor);
-		// arrow(mouseVector, smoothMouseDir, 100 * mouseAcc);
 		pop();
 		paintVectorField(vf, vfWidth, vfHeight, currBrushType, brushSize, brushIntensity);
 	}
