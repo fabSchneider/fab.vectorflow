@@ -24,21 +24,6 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-.brush-tool__label{
-    /* use !important to prevent issues with browser extensions that change fonts */
-    font-family: 'fab-icons' !important;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    font-size: 32px;
-    text-transform: none;
-    line-height: 1;
-
-    /* Better Font Rendering =========== */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
 body {
     margin: 0;
     padding: 0;
@@ -48,6 +33,10 @@ body {
 
 canvas {
     margin: auto;
+}
+
+.--hidden{
+    display: none;
 }
 
 .controls {

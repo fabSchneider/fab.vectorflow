@@ -16,7 +16,9 @@
 </head>
 
 <body>
-	<div class="p5-controls" id="controls">
+	<button id="start-btn">Start</button>
+
+	<div class="p5-controls --hidden" id="controls">
 		<div class="control">
 			<input type="radio" name="brushType" class="brush-tool" id="pull" checked>
 			<label class="control__label" for="pull"></label>
@@ -87,13 +89,11 @@
 
 	<div class="p5-container"></div>
 
-	<button id="start-btn">Start</button>
-
-
 <script>
 	document.querySelector("#start-btn").onclick = () =>{
+		document.querySelector(".p5-controls").classList.remove("--hidden");
+		document.querySelector("#start-btn").classList.add("--hidden");
 		startSketch();
-		console.log("hey");
 	}
 </script>
 
