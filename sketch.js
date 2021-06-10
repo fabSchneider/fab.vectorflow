@@ -388,7 +388,6 @@ function updateParticles(vf, vfWidth, vfHeight) {
 
 		//draw particle
 		particleGraphics.stroke(pC);
-		//particleGraphics.strokeWeight((abs(p.velX) + abs(p.velY)) / 50);
 		particleGraphics.line(pX, pY, p.x, p.y);
 	}
 }
